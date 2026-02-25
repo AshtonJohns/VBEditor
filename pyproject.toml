@@ -1,0 +1,26 @@
+[project]
+name = "excel-com"
+version = "0.1.0"
+description = "Excel VBA import/export tooling for VS Code workflows"
+readme = "README.md"
+authors = [
+    { name = "Ashton Johns", email = "ashtonmjohns@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "pywin32>=311",
+]
+
+[project.scripts]
+excel-com = "excel_com:main"
+
+[build-system]
+requires = ["uv_build>=0.10.5,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+    "ruff>=0.15.2",
+    "ty>=0.0.18",
+]

@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "VBA: Pull from workbook",
+      "type": "shell",
+      "command": "uv run excel-com export --workbook .\\Workbook.xlsm --out .\\vba",
+      "problemMatcher": []
+    },
+    {
+      "label": "VBA: Push to workbook",
+      "type": "shell",
+      "command": "uv run excel-com import --workbook .\\Workbook.xlsm --src .\\vba --clean",
+      "problemMatcher": []
+    },
+    {
+      "label": "Ribbon: Pull from add-in",
+      "type": "shell",
+      "command": "uv run excel-com ribbon pull --workbook .\\Workbook.xlam --out .\\ribbon\\customUI14.xml",
+      "problemMatcher": []
+    },
+    {
+      "label": "Ribbon: Push to add-in",
+      "type": "shell",
+      "command": "uv run excel-com ribbon push --workbook .\\Workbook.xlam --xml .\\ribbon\\customUI14.xml",
+      "problemMatcher": []
+    }
+  ]
+}

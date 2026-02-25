@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "*.bas": "vb",
+    "*.cls": "vb",
+    "*.frm": "vb"
+  }
+}
