@@ -2,13 +2,13 @@ from pathlib import Path
 
 import pytest
 
-from excel_com.cli import (
+from com.cli import (
     SourceModule,
     build_parser,
     cleanup_orphaned_frx,
     discover_source_modules,
 )
-from excel_com.ribbon import pull_ribbon_xml, push_ribbon_xml
+from com.ribbon import pull_ribbon_xml, push_ribbon_xml
 
 
 def test_discover_source_modules_only_returns_supported_files(tmp_path: Path) -> None:

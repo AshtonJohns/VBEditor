@@ -42,44 +42,44 @@ uv add pywin32
 
 ## CLI usage
 
-Entry point: `excel-com`
+Entry point: `com`
 
 ### Export workbook VBA to files (pull from Excel, default)
 
 ```powershell
-uv run excel-com export --workbook .\Workbook.xlsm --out .\vba
+uv run com export --workbook .\Workbook.xlsm --out .\vba
 ```
 
 ### Import files into workbook (push to Excel, default)
 
 ```powershell
-uv run excel-com import --workbook .\Workbook.xlsm --src .\vba
+uv run com import --workbook .\Workbook.xlsm --src .\vba
 ```
 
 ### Import and remove workbook components not present on disk
 
 ```powershell
-uv run excel-com import --workbook .\Workbook.xlsm --src .\vba --clean
+uv run com import --workbook .\Workbook.xlsm --src .\vba --clean
 ```
 
 ### Export/import with Word (optional)
 
 ```powershell
 # pull from Word
-uv run excel-com export --workbook .\Document.docm --out .\vba --app word
+uv run com export --workbook .\Document.docm --out .\vba --app word
 
 # push to Word
-uv run excel-com import --workbook .\Document.docm --src .\vba --clean --app word
+uv run com import --workbook .\Document.docm --src .\vba --clean --app word
 ```
 
 ### Sync convenience command
 
 ```powershell
 # pull
-uv run excel-com sync --workbook .\Workbook.xlsm --dir .\vba --direction pull
+uv run com sync --workbook .\Workbook.xlsm --dir .\vba --direction pull
 
 # push
-uv run excel-com sync --workbook .\Workbook.xlsm --dir .\vba --direction push --clean
+uv run com sync --workbook .\Workbook.xlsm --dir .\vba --direction push --clean
 ```
 
 ### Ribbon XML pull/push for `.xlam` or `.dotm`
@@ -87,29 +87,29 @@ uv run excel-com sync --workbook .\Workbook.xlsm --dir .\vba --direction push --
 Extract ribbon XML from an add-in package to edit in VS Code:
 
 ```powershell
-uv run excel-com ribbon pull --workbook .\MyAddin.xlam --out .\ribbon\customUI14.xml
+uv run com ribbon pull --workbook .\MyAddin.xlam --out .\ribbon\customUI14.xml
 ```
 
 Inject edited ribbon XML back into the add-in (in-place):
 
 ```powershell
-uv run excel-com ribbon push --workbook .\MyAddin.xlam --xml .\ribbon\customUI14.xml
+uv run com ribbon push --workbook .\MyAddin.xlam --xml .\ribbon\customUI14.xml
 ```
 
 Inject into a new output add-in file:
 
 ```powershell
-uv run excel-com ribbon push --workbook .\MyAddin.xlam --xml .\ribbon\customUI14.xml --out-workbook .\MyAddin.updated.xlam
+uv run com ribbon push --workbook .\MyAddin.xlam --xml .\ribbon\customUI14.xml --out-workbook .\MyAddin.updated.xlam
 ```
 
 Word template example:
 
 ```powershell
 # pull from Word template
-uv run excel-com ribbon pull --workbook .\MyTemplate.dotm --out .\ribbon\customUI14.xml
+uv run com ribbon pull --workbook .\MyTemplate.dotm --out .\ribbon\customUI14.xml
 
 # push to Word template
-uv run excel-com ribbon push --workbook .\MyTemplate.dotm --xml .\ribbon\customUI14.xml
+uv run com ribbon push --workbook .\MyTemplate.dotm --xml .\ribbon\customUI14.xml
 ```
 
 ## Manual import/export (Excel UI)

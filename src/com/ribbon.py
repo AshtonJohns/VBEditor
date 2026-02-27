@@ -55,7 +55,7 @@ def pull_ribbon_xml(workbook_path: Path, output_xml_path: Path) -> Path:
     workbook_path = workbook_path.resolve()
     output_xml_path = output_xml_path.resolve()
 
-    with tempfile.TemporaryDirectory(prefix="excel-com-ribbon-") as temp_dir:
+    with tempfile.TemporaryDirectory(prefix="com-ribbon-") as temp_dir:
         workspace_root = Path(temp_dir)
         _, extracted_root = _extract_workbook_package(workbook_path, workspace_root)
         ribbon_path = _find_existing_ribbon_path(extracted_root)
@@ -87,7 +87,7 @@ def push_ribbon_xml(
 
     destination_workbook = out_workbook_path.resolve() if out_workbook_path is not None else workbook_path
 
-    with tempfile.TemporaryDirectory(prefix="excel-com-ribbon-") as temp_dir:
+    with tempfile.TemporaryDirectory(prefix="com-ribbon-") as temp_dir:
         workspace_root = Path(temp_dir)
         temp_zip, extracted_root = _extract_workbook_package(workbook_path, workspace_root)
 

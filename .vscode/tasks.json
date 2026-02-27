@@ -4,49 +4,49 @@
     {
       "label": "VBA: Pull from workbook",
       "type": "shell",
-      "command": "uv run excel-com export --workbook .\\Workbook.xlam --out .\\vba",
+      "command": "uv run com export --workbook .\\Workbook.xlam --out .\\vba",
       "problemMatcher": []
     },
     {
       "label": "VBA: Push to workbook",
       "type": "shell",
-      "command": "uv run excel-com import --workbook .\\Workbook.xlam --src .\\vba --clean",
+      "command": "uv run com import --workbook .\\Workbook.xlam --src .\\vba --clean",
       "problemMatcher": []
     },
     {
       "label": "VBA: Pull from Word document",
       "type": "shell",
-      "command": "uv run excel-com export --workbook .\\Document.dotm --out .\\vba --app word",
+      "command": "uv run com export --workbook .\\Document.dotm --out .\\vba --app word",
       "problemMatcher": []
     },
     {
       "label": "VBA: Push to Word document",
       "type": "shell",
-      "command": "uv run excel-com import --workbook .\\Document.dotm --src .\\vba --clean --app word",
+      "command": "uv run com import --workbook .\\Document.dotm --src .\\vba --clean --app word",
       "problemMatcher": []
     },
     {
       "label": "Ribbon: Pull from add-in",
       "type": "shell",
-      "command": "uv run excel-com ribbon pull --workbook .\\Workbook.xlam --out .\\ribbon\\customUI14.xml",
+      "command": "uv run com ribbon pull --workbook .\\Workbook.xlam --out .\\ribbon\\customUI14.xml",
       "problemMatcher": []
     },
     {
       "label": "Ribbon: Push to add-in",
       "type": "shell",
-      "command": "uv run excel-com ribbon push --workbook .\\Workbook.xlam --xml .\\ribbon\\customUI14.xml",
+      "command": "uv run com ribbon push --workbook .\\Workbook.xlam --xml .\\ribbon\\customUI14.xml",
       "problemMatcher": []
     },
     {
       "label": "Ribbon: Pull from Word template",
       "type": "shell",
-      "command": "uv run excel-com ribbon pull --workbook .\\Document.dotm --out .\\ribbon\\customUI14.xml",
+      "command": "uv run com ribbon pull --workbook .\\Document.dotm --out .\\ribbon\\customUI14.xml",
       "problemMatcher": []
     },
     {
       "label": "Ribbon: Push to Word template",
       "type": "shell",
-      "command": "uv run excel-com ribbon push --workbook .\\Document.dotm --xml .\\ribbon\\customUI14.xml",
+      "command": "uv run com ribbon push --workbook .\\Document.dotm --xml .\\ribbon\\customUI14.xml",
       "problemMatcher": []
     }
   ]

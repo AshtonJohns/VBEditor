@@ -6,7 +6,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from excel_com.ribbon import pull_ribbon_xml, push_ribbon_xml
+from com.ribbon import pull_ribbon_xml, push_ribbon_xml
 
 try:
     from win32com.client import DispatchEx  # type: ignore[import-untyped]
@@ -38,7 +38,7 @@ class SourceModule:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="excel-com",
+        prog="com",
         description="Export and import VBA components so you can edit in VS Code.",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)

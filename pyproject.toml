@@ -1,7 +1,7 @@
 [project]
-name = "excel-com"
+name = "com"
 version = "0.1.0"
-description = "Excel VBA import/export tooling for VS Code workflows"
+description = "Office VBA import/export tooling for VS Code workflows"
 readme = "README.md"
 authors = [
     { name = "Ashton Johns", email = "ashtonmjohns@gmail.com" }
@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-excel-com = "excel_com:main"
+com = "com:main"
 
 [build-system]
 requires = ["uv_build>=0.10.5,<0.11.0"]
