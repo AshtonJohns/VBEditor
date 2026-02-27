@@ -47,6 +47,17 @@ def test_parser_supports_sync_push_clean() -> None:
     assert args.command == "sync"
     assert args.direction == "push"
     assert args.clean is True
+    assert args.app == "excel"
+
+
+def test_parser_supports_word_host_option() -> None:
+    parser = build_parser()
+    args = parser.parse_args(
+        ["export", "--workbook", "Doc1.docm", "--out", "vba", "--app", "word"]
+    )
+
+    assert args.command == "export"
+    assert args.app == "word"
 
 
 def test_parser_requires_command() -> None:

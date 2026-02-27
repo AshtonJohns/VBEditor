@@ -23,6 +23,8 @@ COMPONENT_EXTENSIONS = {
     VBEXT_CT_MSFORM: ".frm",
 }
 
+SUPPORTED_APPS = ("excel", "word")
+
 
 @dataclass(frozen=True)
 class SourceModule:
@@ -44,10 +46,22 @@ def build_parser() -> argparse.ArgumentParser:
     export_parser = subparsers.add_parser("export", help="Export VBA modules from a workbook.")
     export_parser.add_argument("--workbook", required=True, type=Path, help="Path to .xlsm/.xlsb workbook")
     export_parser.add_argument("--out", required=True, type=Path, help="Directory for exported .bas/.cls/.frm files")
+    export_parser.add_argument(
+        "--app",
+        choices=SUPPORTED_APPS,
+        default="excel",
+        help="Office app host (default: excel).",
+    )
 
     import_parser = subparsers.add_parser("import", help="Import VBA modules into a workbook.")
     import_parser.add_argument("--workbook", required=True, type=Path, help="Path to .xlsm/.xlsb workbook")
     import_parser.add_argument("--src", required=True, type=Path, help="Directory containing .bas/.cls/.frm files")
+    import_parser.add_argument(
+        "--app",
+        choices=SUPPORTED_APPS,
+        default="excel",
+        help="Office app host (default: excel).",
+    )
     import_parser.add_argument(
         "--clean",
         action="store_true",
@@ -57,6 +71,12 @@ def build_parser() -> argparse.ArgumentParser:
     sync_parser = subparsers.add_parser("sync", help="Convenience wrapper for export/import.")
     sync_parser.add_argument("--workbook", required=True, type=Path, help="Path to .xlsm/.xlsb workbook")
     sync_parser.add_argument("--dir", required=True, type=Path, help="Shared source folder")
+    sync_parser.add_argument(
+        "--app",
+        choices=SUPPORTED_APPS,
+        default="excel",
+        help="Office app host (default: excel).",
+    )
     sync_parser.add_argument(
         "--direction",
         required=True,
@@ -115,20 +135,33 @@ def ensure_exists(path: Path, kind: str) -> None:
         raise FileNotFoundError(f"{kind} not found: {path}")
 
 
-def ensure_excel_file(path: Path) -> Path:
+def ensure_office_file(path: Path, app: str) -> Path:
     ensure_exists(path, "Workbook")
-    if path.suffix.lower() not in {".xlsm", ".xlsb", ".xlam", ".xls"}:
-        raise ValueError("Workbook must be an Excel file (.xlsm/.xlsb/.xlam/.xls).")
+    supported_extensions = {
+        "excel": {".xlsm", ".xlsb", ".xlam", ".xls"},
+        "word": {".docm", ".dotm", ".doc"},
+    }
+    if path.suffix.lower() not in supported_extensions[app]:
+        raise ValueError(
+            f"Workbook must be a supported {app.title()} file ({'/'.join(sorted(supported_extensions[app]))})."
+        )
     return path.resolve()
 
 
-def open_excel_workbook(workbook_path: Path):
+def open_host_document(workbook_path: Path, app: str):
     assert_dispatch_available()
-    excel = DispatchEx("Excel.Application")
-    excel.Visible = False
-    excel.DisplayAlerts = False
-    workbook = excel.Workbooks.Open(str(workbook_path))
-    return excel, workbook
+    if app == "excel":
+        host = DispatchEx("Excel.Application")
+        host.Visible = False
+        host.DisplayAlerts = False
+        document = host.Workbooks.Open(str(workbook_path))
+        return host, document
+
+    host = DispatchEx("Word.Application")
+    host.Visible = False
+    host.DisplayAlerts = 0
+    document = host.Documents.Open(str(workbook_path))
+    return host, document
 
 
 def iter_exportable_components(vbproject):
@@ -137,15 +170,15 @@ def iter_exportable_components(vbproject):
             yield component
 
 
-def export_modules(workbook_path: Path, output_dir: Path) -> int:
-    workbook_path = ensure_excel_file(workbook_path)
+def export_modules(workbook_path: Path, output_dir: Path, app: str = "excel") -> int:
+    workbook_path = ensure_office_file(workbook_path, app)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    excel = workbook = None
+    host = document = None
     exported = 0
     try:
-        excel, workbook = open_excel_workbook(workbook_path)
-        vbproject = workbook.VBProject
+        host, document = open_host_document(workbook_path, app)
+        vbproject = document.VBProject
         for component in iter_exportable_components(vbproject):
             extension = COMPONENT_EXTENSIONS[int(component.Type)]
             target = output_dir / f"{component.Name}{extension}"
@@ -153,27 +186,27 @@ def export_modules(workbook_path: Path, output_dir: Path) -> int:
             exported += 1
     finally:
         with contextlib.suppress(Exception):
-            if workbook is not None:
-                workbook.Close(SaveChanges=False)
+            if document is not None:
+                document.Close(SaveChanges=False)
         with contextlib.suppress(Exception):
-            if excel is not None:
-                excel.Quit()
+            if host is not None:
+                host.Quit()
 
     return exported
 
 
-def import_modules(workbook_path: Path, source_dir: Path, clean: bool = False) -> int:
-    workbook_path = ensure_excel_file(workbook_path)
+def import_modules(workbook_path: Path, source_dir: Path, clean: bool = False, app: str = "excel") -> int:
+    workbook_path = ensure_office_file(workbook_path, app)
     ensure_exists(source_dir, "Source directory")
 
     sources = discover_source_modules(source_dir.resolve())
     source_names = {source.component_name for source in sources}
 
-    excel = workbook = None
+    host = document = None
     imported = 0
     try:
-        excel, workbook = open_excel_workbook(workbook_path)
-        vbproject = workbook.VBProject
+        host, document = open_host_document(workbook_path, app)
+        vbproject = document.VBProject
 
         existing_components = {component.Name: component for component in iter_exportable_components(vbproject)}
 
@@ -189,14 +222,14 @@ def import_modules(workbook_path: Path, source_dir: Path, clean: bool = False) -
                 if component.Name not in source_names:
                     vbproject.VBComponents.Remove(component)
 
-        workbook.Save()
+        document.Save()
     finally:
         with contextlib.suppress(Exception):
-            if workbook is not None:
-                workbook.Close(SaveChanges=False)
+            if document is not None:
+                document.Close(SaveChanges=False)
         with contextlib.suppress(Exception):
-            if excel is not None:
-                excel.Quit()
+            if host is not None:
+                host.Quit()
 
     cleanup_orphaned_frx(source_dir.resolve(), source_names)
     return imported
@@ -209,24 +242,24 @@ def cleanup_orphaned_frx(source_dir: Path, source_names: set[str]) -> None:
 
 
 def export_command(args: argparse.Namespace) -> int:
-    exported = export_modules(args.workbook, args.out)
+    exported = export_modules(args.workbook, args.out, app=args.app)
     print(f"Exported {exported} VBA components to {args.out.resolve()}")
     return 0
 
 
 def import_command(args: argparse.Namespace) -> int:
-    imported = import_modules(args.workbook, args.src, clean=args.clean)
+    imported = import_modules(args.workbook, args.src, clean=args.clean, app=args.app)
     print(f"Imported {imported} VBA components from {args.src.resolve()}")
     return 0
 
 
 def sync_command(args: argparse.Namespace) -> int:
     if args.direction == "pull":
-        exported = export_modules(args.workbook, args.dir)
+        exported = export_modules(args.workbook, args.dir, app=args.app)
         print(f"Pulled {exported} VBA components into {args.dir.resolve()}")
         return 0
 
-    imported = import_modules(args.workbook, args.dir, clean=args.clean)
+    imported = import_modules(args.workbook, args.dir, clean=args.clean, app=args.app)
     print(f"Pushed {imported} VBA components from {args.dir.resolve()}")
     return 0
 

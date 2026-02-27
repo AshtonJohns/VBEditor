@@ -1,6 +1,6 @@
-# VS Code VBA Workflow (Excel Runtime)
+# VS Code VBA Workflow (Excel Default, Word Optional)
 
-This repository is set up so VBA source lives as text files you edit in VS Code, while Excel remains the runtime and debugger.
+This repository is set up so VBA source lives as text files you edit in VS Code. By default, commands target Excel, and you can optionally target Word with `--app word`.
 
 ## What this gives you
 
@@ -11,9 +11,10 @@ This repository is set up so VBA source lives as text files you edit in VS Code,
 
 ## Runtime constraints
 
-- Excel is still the runtime.
+- Excel is the default runtime.
+- Word is supported when you pass `--app word`.
 - The VBA engine is still required.
-- Debugging still happens in Excel.
+- Debugging happens in the Office host app you use.
 
 ## Folder convention
 
@@ -25,12 +26,12 @@ Use a folder like `vba/` to store exported components:
 
 Document modules (`ThisWorkbook`, `Sheet1`, etc.) are not exported/imported by this CLI.
 
-You can also keep ribbon XML as source (for example `ribbon/customUI14.xml`) and round-trip it to `.xlam`.
+You can also keep ribbon XML as source (for example `ribbon/customUI14.xml`) and round-trip it to `.xlam` or `.dotm`.
 
 ## Prerequisites
 
-1. Windows with desktop Excel installed.
-2. In Excel: **Trust Center -> Macro Settings -> Trust access to the VBA project object model** enabled.
+1. Windows with desktop Excel and/or Word installed.
+2. In Excel or Word: **Trust Center -> Macro Settings -> Trust access to the VBA project object model** enabled.
 3. Python environment for this repo.
 
 Install dependency:
@@ -43,13 +44,13 @@ uv add pywin32
 
 Entry point: `excel-com`
 
-### Export workbook VBA to files (pull from Excel)
+### Export workbook VBA to files (pull from Excel, default)
 
 ```powershell
 uv run excel-com export --workbook .\Workbook.xlsm --out .\vba
 ```
 
-### Import files into workbook (push to Excel)
+### Import files into workbook (push to Excel, default)
 
 ```powershell
 uv run excel-com import --workbook .\Workbook.xlsm --src .\vba
@@ -59,6 +60,16 @@ uv run excel-com import --workbook .\Workbook.xlsm --src .\vba
 
 ```powershell
 uv run excel-com import --workbook .\Workbook.xlsm --src .\vba --clean
+```
+
+### Export/import with Word (optional)
+
+```powershell
+# pull from Word
+uv run excel-com export --workbook .\Document.docm --out .\vba --app word
+
+# push to Word
+uv run excel-com import --workbook .\Document.docm --src .\vba --clean --app word
 ```
 
 ### Sync convenience command
@@ -71,7 +82,7 @@ uv run excel-com sync --workbook .\Workbook.xlsm --dir .\vba --direction pull
 uv run excel-com sync --workbook .\Workbook.xlsm --dir .\vba --direction push --clean
 ```
 
-### Ribbon XML pull/push for `.xlam`
+### Ribbon XML pull/push for `.xlam` or `.dotm`
 
 Extract ribbon XML from an add-in package to edit in VS Code:
 
@@ -89,6 +100,16 @@ Inject into a new output add-in file:
 
 ```powershell
 uv run excel-com ribbon push --workbook .\MyAddin.xlam --xml .\ribbon\customUI14.xml --out-workbook .\MyAddin.updated.xlam
+```
+
+Word template example:
+
+```powershell
+# pull from Word template
+uv run excel-com ribbon pull --workbook .\MyTemplate.dotm --out .\ribbon\customUI14.xml
+
+# push to Word template
+uv run excel-com ribbon push --workbook .\MyTemplate.dotm --xml .\ribbon\customUI14.xml
 ```
 
 ## Manual import/export (Excel UI)
